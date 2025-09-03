@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <title>Teste de Câmera</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    html, body { margin:0; padding:0; background:#111; color:#fff; font-family: system-ui; }
+    main { max-width: 860px; margin: 24px auto; padding: 0 16px; }
+    video { width: 100%; max-width: 720px; background:#000; }
+    button { padding:10px 14px; border:0; border-radius:10px; background:#0c6; color:#000; font-weight:700; cursor:pointer; }
+    .err { background:#600; padding:8px 12px; border-radius:10px; margin-top: 12px; display:none; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Teste de Câmera</h1>
+    <p>Clique no botão para dar permissão e ver a câmera. Se não funcionar, o problema é de permissão/OS/navegador (não do AR).</p>
+    <button id="btn">Ativar câmera</button>
+    <div class="err" id="err"></div>
+    <video id="v" playsinline autoplay muted></video>
+    <p>Se aparecer a imagem aqui mas <b>não</b> aparecer no AR, me avise — aí ajustamos só o AR.</p>
+  </main>
+  <script>
+    const btn = document.getElementById('btn');
+    const v = document.getElementById('v');
+    const err = document.getElementById('err');
+
+    btn.onclick = async () => {
+      err.style.display = 'none';
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+        v.srcObject = stream;
+      } catch (e) {
+        err.textContent = 'Erro ao acessar a câmera: ' + (e && e.name ? e.name : e);
+        err.style.display = 'block';
+      }
+    };
+  </script>
+</body>
+</html>
