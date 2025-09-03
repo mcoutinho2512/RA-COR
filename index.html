@@ -35,4 +35,45 @@
 
     <!-- Marcador de teste: HIRO -->
     <a-marker preset="hiro">
-      <a-box position="0 0.5 0" rotation="0 45 0" depth="0.8" height="0.8" width="
+      <a-box position="0 0.5 0" rotation="0 45 0" depth="0.8" height="0.8" width="0.8" opacity="0.9"></a-box>
+
+      <a-entity position="0 1.2 0">
+        <a-plane width="2" height="0.5" position="0 0 0" rotation="-90 0 0" material="color: #002b45; opacity: 0.85"></a-plane>
+        <a-text value="Bem-vindo ao COR-RIO" width="1.8" align="center" color="#ffffff"
+                position="0 0.02 0.01" rotation="-90 0 0"></a-text>
+        <a-text value="Cidade em tempo real: segurança, mobilidade e resiliência."
+                width="1.8" align="center" color="#bfe3ff"
+                position="0 -0.18 0.01" rotation="-90 0 0"></a-text>
+      </a-entity>
+    </a-marker>
+
+    <a-entity camera></a-entity>
+  </a-scene>
+
+  <script>
+    // Mostra mensagens úteis se a câmera não abrir
+    const errBox = document.getElementById('err');
+    function showErr(msg) {
+      errBox.style.display = 'block';
+      errBox.innerHTML = "⚠️ " + msg +
+        '<br><small>Se estiver no desktop, confira as permissões do site (ícone de câmera na barra de endereço) e extensões de privacidade.</small>';
+    }
+
+    // Hook simples: se o vídeo da webcam não inicializar em ~5s, alerta
+    let started = false;
+    setTimeout(() => {
+      const vid = document.querySelector('video');
+      if (!vid || vid.readyState < 2) {
+        showErr('Não consegui acessar a câmera. Dê permissão ou tente no celular.');
+      }
+    }, 5000);
+
+    // Ajuda para casos de permissão negada (alguns navegadores disparam eventos em window)
+    window.addEventListener('error', (e) => {
+      if (String(e?.message || '').toLowerCase().includes('notallowederror')) {
+        showErr('Permissão de câmera negada. Clique no cadeado/ícone de câmera e permita o acesso.');
+      }
+    });
+  </script>
+</body>
+</html>
