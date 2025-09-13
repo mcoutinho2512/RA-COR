@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <title>COR-RIO • WebAR (MindAR)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <!-- A-Frame + MindAR (CDN) -->
+  <link rel="stylesheet" href="https://unpkg.com/mind-ar@1.2.4/dist/mindar-image-aframe.prod.css">
+  <script src="https://unpkg.com/aframe@1.2.0/dist/aframe.min.js"></script>
+  <script src="https://unpkg.com/mind-ar@1.2.4/dist/mindar-image-aframe.prod.js"></script>
+
+  <style>
+    html, body { margin:0; padding:0; background:#000; overflow:hidden; }
+    #overlay { position:fixed; inset:0; background:rgba(0,0,0,.86); color:#fff; display:flex;
+               align-items:center; justify-content:center; z-index:3; }
+    #overlay button { padding:12px 18px; background:#09f; border:0; border-radius:12px; font-weight:700; font-size:16px; }
+    #hud { position: fixed; top:12px; left:12px; z-index:2; background: rgba(0,0,0,.55); color:#fff; padding:8px 12px; border-radius:10px; font-family: system-ui; font-size:14px; }
+    a { color:#9dd4ff; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div id="hud">COR-RIO • WebAR (MindAR) — aponte para a <b>carta de teste</b></div>
+
+  <!-- Overlay para garantir gesto do usuário no iOS -->
+  <div id="overlay">
+    <div style="text-align:center; max-width:520px;">
+      <h2>Iniciar câmera</h2>
+      <p>Toque abaixo para autorizar a câmera e iniciar a RA.<br>Abra no Safari (iPhone) ou Chrome (Android).</p>
+      <p style="margin:.5rem 0 1rem; font-size:13px">
+        Alvo de teste: <a href="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.7/examples/image-tracking/assets/card-example/card.png" target="_blank">abrir imagem</a>
+      </p>
+      <button id="start">Permitir câmera</button>
+    </div>
+  </div>
+
+  <a-scene
+    mindar-image="imageTargetSrc: https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.7/examples/image-tracking/assets/card-example/card.mind; autoStart: false;"
+    color-space="sRGB"
+    renderer="colorManagement: true, physicallyCorrectLights: true, precision: mediump"
+    embedded
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: true">
+    
+    <!-- Conteúdo quando reconhecer o alvo -->
+    <a-entity mindar-image-target="targetIndex: 0">
+      <a-box position="0 0 0" scale="0.5 0.5 0.5" rotation="0 45 0" opacity="0.95"></a-box>
+      <a-text value="Bem-vindo ao COR-RIO" align="center" width="1.8" color="#ffffff" position="0 0.6 0"></a-text>
+    </a-entity>
+
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+  </a-scene>
+
+  <script>
+    // Inicia a RA só depois do gesto (exigência do iOS)
+    const overlay = document.getElementById('overlay');
+    document.getElementById('start').onclick = async () => {
+      try {
+        // Pré-permissão (ajuda no iOS)
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }}, audio: false });
+        stream.getTracks().forEach(t => t.stop());
+
+        const sceneEl = document.querySelector('a-scene');
+        const mindarSystem = sceneEl.systems['mindar-image-system'];
+        await mindarSystem.start(); // inicia câmera + tracking
+        overlay.style.display = 'none';
+      } catch (e) {
+        alert('Erro ao acessar câmera: ' + (e && e.name ? e.name : e));
+      }
+    };
+  </script>
+</body>
+</html>
